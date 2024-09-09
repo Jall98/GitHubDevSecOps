@@ -20,6 +20,12 @@ jobs:
     uses: ./.github/workflows/sca.yml
     secrets: inherit
     
+  sast:
+    needs: build
+    name: SAST
+    uses: ./.github/workflows/sast.yml
+    secrets: inherit
+    
   license-compliance:
     needs: build
     name: License compliance
