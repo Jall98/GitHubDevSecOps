@@ -27,7 +27,7 @@ jobs:
       
       # # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           # If you wish to specify custom queries, you can do so here or in a config file.
@@ -85,7 +85,7 @@ jobs:
         dependenciesPath: ~/.m2
         basePath: src/main/java
     - name: Upload SpotBugs report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: spotbugs.sarif
         path: ${{github.workspace}}/results.sarif
