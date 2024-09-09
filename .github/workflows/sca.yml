@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ "ubuntu-20.04" ] # You can add ["macos-latest", "windows-latest"] if needed
-        manifest_file: [ "pom.xml" ] # Add more manifest files as needed
+        manifest_file: [ "pom.xml" ]
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -30,7 +30,7 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - name: Run Snyk Scan
+      - name: Snyk Vulnerability Scan
         id: snyk_scan
         run: snyk test --file=${{ matrix.manifest_file }} --json > snyk_report.json
         env:
@@ -46,7 +46,5 @@ jobs:
           name: snyk_report
           path: snyk_report.json
 
-      - name: Monitor vulnerabilities (optional)
-        run: snyk monitor --file=${{ matrix.manifest_file }}
-        env:
-          SNYK_TOKEN: ${{ secrets.OUR_SNYK_KEY }}
+      - name: Print Report Link (Optional for Snyk)
+        run: echo "Snyk report generated"
