@@ -27,10 +27,13 @@ jobs:
           java-version: 11
           cache: maven
 
+      - name: Grant execute permissions to Maven wrapper
+        run: chmod +x ./mvnw
+
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - name: Snyk Vulnerability Scan with Debug
+      - name: Snyk Vulnerability Scan
         id: snyk_scan
         run: snyk test --file=${{ matrix.manifest_file }} --json > snyk_report.json --debug
         env:
