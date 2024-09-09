@@ -11,12 +11,9 @@ jobs:
       - name: 'Checkout Repository'
         uses: actions/checkout@v3
 
-      - name: 'License Finder fix with mvnw'
-        run: rm mvnw
-
-      # Ensure all dependencies are downloaded
-      - name: 'Resolve Maven Dependencies'
-        run: mvn dependency:resolve
+      # Ensure all dependencies are downloaded by building the project
+      - name: 'Build Project and Download Dependencies'
+        run: mvn dependency:go-offline
 
       - name: 'License Finder'
         uses: jmservera/license-finder-action@main
@@ -39,3 +36,4 @@ jobs:
         with:
           name: license-finder-report
           path: ${{ github.workspace }}/license_finder_report.xml
+
