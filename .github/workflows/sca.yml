@@ -9,16 +9,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-20.04" ] # [ "macos-latest", "windows-latest", "ubuntu-20.04" ]
-        # Test once with explicit manifest_file, and once without
-        manifest_file: [ "pom.xml" ]
+        os: [ "ubuntu-20.04" ] # You can add ["macos-latest", "windows-latest"] if needed
+        manifest_file: [ "pom.xml" ] # Add more manifest files as needed
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash
     name: SCA Java project
     steps:
-      - name: Checkout action
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup Java
@@ -35,24 +34,24 @@ jobs:
           github_pat: ${{ github.token }}
           crda: "latest"
 
-       - name: SCA (CRDA) Scan
-         id: crda_scan
-         uses: redhat-actions/crda@v1.2
-         with:
-           manifest_file: ${{ matrix.manifest_file }}
-           snyk_token: ${{ secrets.OUR_SNYK_KEY }}
-           fail_on: never
+      - name: SCA (CRDA) Scan
+        id: crda_scan
+        uses: redhat-actions/crda@v1.2
+        with:
+          manifest_file: ${{ matrix.manifest_file }}
+          snyk_token: ${{ secrets.OUR_SNYK_KEY }}
+          fail_on: never
 
       - name: Print JSON analysis report
-        if: ${{ always() && steps.scan.outputs.crda_report_json }}
-        run: cat ${{ steps.scan.outputs.crda_report_json }}
+        if: ${{ always() && steps.crda_scan.outputs.crda_report_json }}
+        run: cat ${{ steps.crda_scan.outputs.crda_report_json }}
 
       - name: Print SARIF analysis report
-        if: ${{ always() && steps.scan.outputs.crda_report_sarif }}
-        run: cat ${{ steps.scan.outputs.crda_report_sarif }}
+        if: ${{ always() && steps.crda_scan.outputs.crda_report_sarif }}
+        run: cat ${{ steps.crda_scan.outputs.crda_report_sarif }}
 
       - name: Print Report Link
-        run: echo ${{ steps.scan.outputs.report_link }}
+        run: echo ${{ steps.crda_scan.outputs.report_link }}
 
       - name: Print Artifact Name
-        run: echo ${{ steps.scan.outputs.artifact_name }}
+        run: echo ${{ steps.crda_scan.outputs.artifact_name }}
