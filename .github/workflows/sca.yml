@@ -1,12 +1,8 @@
-name: Build and Snyk Test
+name: 20 SCA
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
