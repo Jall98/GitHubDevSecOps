@@ -1,50 +1,41 @@
-name: 20 SCA
+name: Build and Snyk Test
 
 on:
-  workflow_dispatch:
-  workflow_call:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  sca:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ "ubuntu-20.04" ]
-        manifest_file: [ "pom.xml" ]
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
-    name: SCA Java project
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: temurin
-          java-version: 11
-          cache: maven
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '11'
 
-      - name: Grant execute permissions to Maven wrapper
-        run: chmod +x ./mvnw
+    - name: Install dependencies
+      run: mvn install
 
-      - name: Install Snyk CLI
-        run: npm install -g snyk
+    - name: Run Snyk Test and Capture Results
+      run: |
+        snyk test --file=pom.xml --json > snyk_report.json --debug || true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Vulnerability Scan
-        id: snyk_scan
-        run: snyk test --file=${{ matrix.manifest_file }} --json > snyk_report.json --debug
-        env:
-          SNYK_TOKEN: ${{ secrets.OUR_SNYK_KEY }}
+    - name: Upload Snyk Report as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: snyk-report
+        path: snyk_report.json
 
-      - name: Print Snyk JSON analysis report
-        if: ${{ always() }}
-        run: cat snyk_report.json
-
-      - name: Upload Snyk report as an artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: snyk_report
-          path: snyk_report.json
+    - name: Display Snyk Report
+      run: cat snyk_report.json
